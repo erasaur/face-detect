@@ -1,0 +1,14 @@
+{
+  "name": "face-detect",
+  "version": "0.0.0",
+  "description": "Face Detection with Node and OpenCV",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.13.3",
+    "opencv": "^3.2.0",
+    "socket.io": "^1.3.7"
+  }
+}
