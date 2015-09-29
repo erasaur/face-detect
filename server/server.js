@@ -8,15 +8,26 @@ var app = express();
 var server = http.Server(app);
 var io = socket(server);
 
+// server properties
 var PORT = 3000;
 var STATIC_DIR = path.join(__dirname + '/../client');
+
+// camera properties
+var CAMERA_FPS = 20;
+var CAMERA_INTERVAL = 1000 / CAMERA_FPS;
+var CAMERA_WIDTH = 640;
+var CAMERA_HEIGHT = 480;
+
+// face detection properties
+var RECT_COLOR = [255, 0, 0];
+var RECT_WIDTH = 2;
 
 app.use(express.static(STATIC_DIR));
 
 app.get('*', function (request, response) {
   response.sendFile(__dirname + '/views/index.html', function (error) {
     if (error) {
-      console.log(error);
+      console.error('Error serving file:', error);
       response.status(error.status).end();
     }
   });
@@ -25,28 +36,56 @@ app.get('*', function (request, response) {
 io.on('connection', function (socket) {
   console.log('connected');
 
-  io.emit('data', 'heres some data');
+  // io.emit('data', 'heres some data');
 
-  // socket.on('capture', function (data) {
-  //   console.log(data);
-  //   try {
-  //     var camera = new cv.VideoCapture(0);
-  //     var window = new cv.namedWindow('Video', 0);
+  var cvCamera;
+  var cvWindow;
 
-  //     setInterval(function () {
-  //       camera.read(function (error, image) {
-  //         if (error) throw error;
-  //         window.show(image);
-  //         window.blockingWaitKey(0, 50);
-  //       });
-  //     }, 50);
-  //   } catch (error) {
-  //     throw 'Camera not available';
-  //   }
-  // });
+  var cvReadImage = function () {
+    if (cvCamera) {
+      cvCamera.read(function (error, image) {
+        if (error) {
+          console.error('Error reading from camera:', error);
+        }
+
+        image.detectObject(cv.FACE_CASCADE, {}, function (error, faces) {
+          if (error) {
+            console.error('Error detecting face:', error);
+          }
+
+          for (var i = 0, len = faces.length, face; i < len; i++) {
+            face = faces[i];
+            image.rectangle([face.x, face.y], [face.width, face.height], RECT_COLOR, RECT_WIDTH);
+          }
+
+          socket.emit('frame', { buffer: image.toBuffer() });
+        });
+
+        // var imageSize = image.size();
+        // if (imageSize[0] > 0 && imageSize[1] > 0) {
+        //   cvWindow.show(image);
+        // }
+        // cvWindow.blockingWaitKey(0, 50);
+      });
+    }
+  };
+
+  try {
+    cvCamera = new cv.VideoCapture(0);
+    // cvWindow = new cv.namedWindow('Video', 0);
+
+    cvCamera.setWidth(CAMERA_WIDTH);
+    cvCamera.setHeight(CAMERA_HEIGHT);
+
+    // setInterval(cvReadImage, UPDATE_MS);
+  } catch (error) {
+    console.error('Camera not available, got error:', error);
+  }
+
+  // socket.on('frame', cvReadImage);
 });
 
-server.listen(3000, function () {
-  console.log('listening on 3000');
+server.listen(PORT, function () {
+  console.log('listening on', PORT);
 });
 
