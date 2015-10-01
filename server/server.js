@@ -13,19 +13,18 @@ var PORT = 3000;
 var STATIC_DIR = path.join(__dirname + '/../client');
 
 // camera properties
-var CAMERA_FPS = 20;
+var CAMERA_FPS = 10;
 var CAMERA_INTERVAL = 1000 / CAMERA_FPS;
-var CAMERA_WIDTH = 640;
-var CAMERA_HEIGHT = 480;
+var CAMERA_WIDTH = 320;
+var CAMERA_HEIGHT = 240;
 
 // face detection properties
 var RECT_COLOR = [255, 0, 0];
 var RECT_WIDTH = 2;
 
 app.use(express.static(STATIC_DIR));
-
 app.get('*', function (request, response) {
-  response.sendFile(__dirname + '/views/index.html', function (error) {
+  response.sendFile('index.html', { root: STATIC_DIR }, function (error) {
     if (error) {
       console.error('Error serving file:', error);
       response.status(error.status).end();
@@ -39,8 +38,6 @@ io.on('connection', function (socket) {
   // io.emit('data', 'heres some data');
 
   var cvCamera;
-  var cvWindow;
-
   var cvReadImage = function () {
     if (cvCamera) {
       cvCamera.read(function (error, image) {
@@ -55,29 +52,25 @@ io.on('connection', function (socket) {
 
           for (var i = 0, len = faces.length, face; i < len; i++) {
             face = faces[i];
-            image.rectangle([face.x, face.y], [face.width, face.height], RECT_COLOR, RECT_WIDTH);
+            image.rectangle(
+              [face.x, face.y],
+              [face.width, face.height],
+              RECT_COLOR, RECT_WIDTH
+            );
           }
 
           socket.emit('frame', { buffer: image.toBuffer() });
         });
-
-        // var imageSize = image.size();
-        // if (imageSize[0] > 0 && imageSize[1] > 0) {
-        //   cvWindow.show(image);
-        // }
-        // cvWindow.blockingWaitKey(0, 50);
       });
     }
   };
 
   try {
     cvCamera = new cv.VideoCapture(0);
-    // cvWindow = new cv.namedWindow('Video', 0);
-
     cvCamera.setWidth(CAMERA_WIDTH);
     cvCamera.setHeight(CAMERA_HEIGHT);
 
-    // setInterval(cvReadImage, UPDATE_MS);
+    setInterval(cvReadImage, CAMERA_INTERVAL);
   } catch (error) {
     console.error('Camera not available, got error:', error);
   }
