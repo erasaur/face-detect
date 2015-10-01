@@ -13,7 +13,7 @@ var bufferToBase64 = function (buffer) {
   return btoa(str);
 };
 
-var drawImage = function (image) {
+var drawImage = function () {
   context.drawImage(image, 0, 0, canvas.width, canvas.height);
 };
 
