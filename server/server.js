@@ -3,6 +3,7 @@ var path = require('path');
 var express = require('express');
 var socket = require('socket.io');
 var http = require('http');
+var childProcess = require('child_process');
 
 var app = express();
 var server = http.Server(app);
@@ -38,6 +39,7 @@ io.on('connection', function (socket) {
   // io.emit('data', 'heres some data');
 
   var cvCamera;
+  var imageBuffer;
   var cvReadImage = function () {
     if (cvCamera) {
       cvCamera.read(function (error, image) {
@@ -45,21 +47,29 @@ io.on('connection', function (socket) {
           console.error('Error reading from camera:', error);
         }
 
-        image.detectObject(cv.FACE_CASCADE, {}, function (error, faces) {
-          if (error) {
-            console.error('Error detecting face:', error);
-          }
+        imageBuffer = image.toBuffer();
+        cv.readImage(imageBuffer, function (error, mat) {
+          // process image matrix
+          childProcess.execFile('lib/a.out', [mat], function (error, stdout, stderr) {
+            console.log(stdout);
 
-          for (var i = 0, len = faces.length, face; i < len; i++) {
-            face = faces[i];
-            image.rectangle(
-              [face.x, face.y],
-              [face.width, face.height],
-              RECT_COLOR, RECT_WIDTH
-            );
-          }
+            image.detectObject(cv.FACE_CASCADE, {}, function (error, faces) {
+              if (error) {
+                console.error('Error detecting face:', error);
+              }
 
-          socket.emit('frame', { buffer: image.toBuffer() });
+              for (var i = 0, len = faces.length, face; i < len; i++) {
+                face = faces[i];
+                image.rectangle(
+                  [face.x, face.y],
+                  [face.width, face.height],
+                  RECT_COLOR, RECT_WIDTH
+                );
+              }
+
+              socket.emit('frame', { buffer: image.toBuffer() });
+            });
+          });
         });
       });
     }
