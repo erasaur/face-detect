@@ -4,6 +4,7 @@ var express = require('express');
 var socket = require('socket.io');
 var http = require('http');
 var childProcess = require('child_process');
+var zmq = require('zmq');
 
 var app = express();
 var server = http.Server(app);
@@ -37,6 +38,17 @@ io.on('connection', function (socket) {
   console.log('connected');
 
   // io.emit('data', 'heres some data');
+  // var child = childProcess.spawn('lib/a.out');
+  // var requester = zmq.socket('req');
+
+  // requester.on('message', function (reply) {
+  //   socket.emit('frame', { buffer: reply });
+  // });
+  // requester.connect('tcp://localhost:5555');
+  // process.on('SIGINT', function () {
+  //   requester.close();
+  //   process.exit();
+  // });
 
   var cvCamera;
   var imageBuffer;
@@ -49,27 +61,14 @@ io.on('connection', function (socket) {
 
         imageBuffer = image.toBuffer();
         cv.readImage(imageBuffer, function (error, mat) {
-          // process image matrix
-          childProcess.execFile('lib/a.out', [mat], function (error, stdout, stderr) {
-            console.log(stdout);
+          console.log(image.toBuffer());
+          console.log('#################');
+          console.log('#################');
+          console.log('#################');
+          console.log('#################');
+          console.log(mat.toBuffer());
 
-            image.detectObject(cv.FACE_CASCADE, {}, function (error, faces) {
-              if (error) {
-                console.error('Error detecting face:', error);
-              }
-
-              for (var i = 0, len = faces.length, face; i < len; i++) {
-                face = faces[i];
-                image.rectangle(
-                  [face.x, face.y],
-                  [face.width, face.height],
-                  RECT_COLOR, RECT_WIDTH
-                );
-              }
-
-              socket.emit('frame', { buffer: image.toBuffer() });
-            });
-          });
+          // requester.send(mat);
         });
       });
     }
@@ -80,7 +79,8 @@ io.on('connection', function (socket) {
     cvCamera.setWidth(CAMERA_WIDTH);
     cvCamera.setHeight(CAMERA_HEIGHT);
 
-    setInterval(cvReadImage, CAMERA_INTERVAL);
+    cvReadImage();
+    // setInterval(cvReadImage, CAMERA_INTERVAL);
   } catch (error) {
     console.error('Camera not available, got error:', error);
   }
