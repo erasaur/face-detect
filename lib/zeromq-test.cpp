@@ -5,7 +5,8 @@
 int main () {
   zmq::context_t context(1);
   zmq::socket_t responder(context, ZMQ_REP);
-  responder.connect("tcp://localhost:5555");
+  responder.bind("tcp://127.0.0.1:5555");
+  std::cout << "zeromq connected" << std::endl;
 
   while (true) {
     zmq::message_t message;
@@ -21,6 +22,9 @@ int main () {
     sleep(1);
 
     // Send reply back to client
+    /* zmq::message_t reply(5); */
+    /* memcpy((void *) reply.data(), "world", 5); */
+    /* socket.send(reply); */
     zmq_send(responder, msg_data, msg_size, 0);
   }
 }

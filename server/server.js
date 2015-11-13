@@ -37,21 +37,28 @@ app.get('*', function (request, response) {
 io.on('connection', function (socket) {
   console.log('connected');
 
-  // io.emit('data', 'heres some data');
-  // var child = childProcess.spawn('lib/a.out');
-  // var requester = zmq.socket('req');
+  io.emit('data', 'heres some data');
+  var child = childProcess.spawn('lib/a.out');
+  var requester = zmq.socket('req');
 
-  // requester.on('message', function (reply) {
-  //   socket.emit('frame', { buffer: reply });
-  // });
-  // requester.connect('tcp://localhost:5555');
-  // process.on('SIGINT', function () {
-  //   requester.close();
-  //   process.exit();
-  // });
+  child.stdout.on('data', function (data) {
+    console.log(data.toString());
+  });
+
+  requester.on('message', function (reply) {
+    console.log("got a reply: ", reply.toString());
+    // socket.emit('frame', { buffer: reply });
+  });
+  requester.connect('tcp://127.0.0.1:5555');
+  process.on('SIGINT', function () {
+    requester.close();
+    child.kill('SIGINT');
+    process.exit();
+  });
 
   var cvCamera;
   var imageBuffer;
+  var imageString;
   var cvReadImage = function () {
     if (cvCamera) {
       cvCamera.read(function (error, image) {
@@ -60,16 +67,18 @@ io.on('connection', function (socket) {
         }
 
         imageBuffer = image.toBuffer();
-        cv.readImage(imageBuffer, function (error, mat) {
-          console.log(image.toBuffer());
-          console.log('#################');
-          console.log('#################');
-          console.log('#################');
-          console.log('#################');
-          console.log(mat.toBuffer());
+        console.log(imageBuffer);
+        // cv.readImage(imageBuffer, function (error, mat) {
+        //   // console.log(image.toBuffer());
+        //   // console.log('#################');
+        //   // console.log('#################');
+        //   // console.log('#################');
+        //   // console.log('#################');
+        //   // console.log(mat.toBuffer());
 
-          // requester.send(mat);
-        });
+        //   // requester.send(mat);
+        //   requester.send("hello");
+        // });
       });
     }
   };
@@ -79,8 +88,8 @@ io.on('connection', function (socket) {
     cvCamera.setWidth(CAMERA_WIDTH);
     cvCamera.setHeight(CAMERA_HEIGHT);
 
-    cvReadImage();
-    // setInterval(cvReadImage, CAMERA_INTERVAL);
+    // cvReadImage();
+    setInterval(cvReadImage, CAMERA_INTERVAL);
   } catch (error) {
     console.error('Camera not available, got error:', error);
   }
