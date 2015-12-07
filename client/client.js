@@ -11,3 +11,11 @@ image.onload = function () {
 socket.on('frame', function (data) {
   image.src = 'data:image/png;base64,' + data.buffer;
 });
+
+socket.on('server_shutdown', function () {
+  socket.disconnect();
+});
+
+socket.on('connect_error', function (data) {
+  console.log(data);
+});

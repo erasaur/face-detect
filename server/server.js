@@ -20,11 +20,25 @@ var CAMERA_INTERVAL = 1000 / CAMERA_FPS;
 var CAMERA_WIDTH = 320;
 var CAMERA_HEIGHT = 240;
 
-// face detection properties
-var RECT_COLOR = [255, 0, 0];
-var RECT_WIDTH = 2;
+var TCP_PORTS = {
+  '5555': 0,
+  '5556': 0,
+  '5557': 0,
+  '5558': 0
+};
 
 var fs = require('fs');
+
+var getAvailablePort = function () {
+  var res;
+  Object.keys(TCP_PORTS).forEach(function (key) {
+    if (TCP_PORTS[key] === 0) {
+      res = key;
+      return;
+    }
+  });
+  return res;
+};
 
 app.use(express.static(STATIC_DIR));
 app.get('*', function (request, response) {
@@ -36,28 +50,41 @@ app.get('*', function (request, response) {
   });
 });
 
+process.on('SIGINT', function () {
+  io.sockets.emit('server_shutdown');
+  process.exit();
+});
+
 io.on('connection', function (socket) {
   console.log('connected');
 
-  var child = childProcess.spawn('lib/a.out');
+  var nextPort = getAvailablePort();
+  if (!nextPort) {
+    var msg = 'ran out of tcp ports';
+    socket.emit('connect_error', msg);
+    console.log(msg);
+    return;
+  }
+
+  var child = childProcess.spawn('lib/a.out', [nextPort]);
   var requester = zmq.socket('req');
+
+  console.log('using port: ', nextPort);
+  TCP_PORTS[nextPort] = requester;
 
   child.stdout.pipe(process.stdout);
   child.stderr.pipe(process.stderr);
-  // child.stdout.on('data', function (data) {
-  //   console.log('child output: ', data.toString());
-  // });
 
   requester.on('message', function (reply) {
-    // console.log("got a reply: ", reply.toString('base64'));
     socket.emit('frame', { buffer: reply.toString('base64') });
   });
 
-  requester.connect('tcp://127.0.0.1:5555');
-  process.on('SIGINT', function () {
+  requester.connect('tcp://127.0.0.1:' + nextPort);
+
+  socket.on('disconnect', function () {
+    TCP_PORTS[nextPort] = 0;
     requester.close();
     child.kill('SIGINT');
-    process.exit();
   });
 
   var cvCamera;
