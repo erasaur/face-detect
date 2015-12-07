@@ -124,26 +124,14 @@ int main (int argc, char** argv) {
     char* msg_data_char = (char*) message.data();
 
     std::string msg_data_str = std::string(static_cast<char*>(msg_data_char), msg_size);
-    std::string result = base64_decode(msg_data_str);
+    std::string msg_decoded = base64_decode(msg_data_str);
 
-    cv::Mat rawData = cv::Mat(1, result.length(), CV_8UC1, (unsigned char*)result.c_str());
+    cv::Mat rawData = cv::Mat(1, msg_decoded.length(), CV_8UC1, (unsigned char*)msg_decoded.c_str());
     cv::Mat img = cv::imdecode(rawData, -1);
 
-    if (!img.data) {
-      std::cout << "no image" << std::endl;
-    } else {
-      cv::namedWindow("main window", CV_WINDOW_AUTOSIZE);
-      cv::imshow("main window", img);
-      cv::waitKey(0); // wait for keypress to close
-      std::cout << "zeromq terminated" << std::endl;
-    }
-
-    return 0;
-
-    /* // Do some 'work' */
-    /* sleep(1); */
+    // do some processing on img
 
     // Send reply back to client
-    /* zmq_send(responder, msg_data, msg_size, 0); */
+    zmq_send(responder, msg_decoded.c_str(), msg_size, 0);
   }
 }

@@ -39,7 +39,6 @@ app.get('*', function (request, response) {
 io.on('connection', function (socket) {
   console.log('connected');
 
-  io.emit('data', 'heres some data');
   var child = childProcess.spawn('lib/a.out');
   var requester = zmq.socket('req');
 
@@ -49,21 +48,17 @@ io.on('connection', function (socket) {
   //   console.log('child output: ', data.toString());
   // });
 
-  // requester.on('message', function (reply) {
-  //   console.log("got a reply: ", reply.toString());
-  //   // socket.emit('frame', { buffer: reply });
-  // });
-  //
+  requester.on('message', function (reply) {
+    // console.log("got a reply: ", reply.toString('base64'));
+    socket.emit('frame', { buffer: reply.toString('base64') });
+  });
+
   requester.connect('tcp://127.0.0.1:5555');
   process.on('SIGINT', function () {
     requester.close();
     child.kill('SIGINT');
     process.exit();
   });
-
-  var file = fs.readFileSync('320x240.jpeg');
-  fs.writeFileSync('test-data', file.toString('base64'));
-  requester.send(file.toString('base64'));
 
   var cvCamera;
   var imageBuffer;
@@ -76,16 +71,6 @@ io.on('connection', function (socket) {
         }
 
         requester.send(image.toBuffer().toString('base64'));
-        // cv.readImage(imageBuffer, function (error, mat) {
-        //   // console.log(image.toBuffer());
-        //   // console.log('#################');
-        //   // console.log('#################');
-        //   // console.log('#################');
-        //   // console.log('#################');
-        //   // console.log(mat.toBuffer());
-
-        //   // requester.send(mat);
-        // });
       });
     }
   };
@@ -95,8 +80,8 @@ io.on('connection', function (socket) {
     cvCamera.setWidth(CAMERA_WIDTH);
     cvCamera.setHeight(CAMERA_HEIGHT);
 
-    cvReadImage();
-    // setInterval(cvReadImage, CAMERA_INTERVAL);
+    // cvReadImage();
+    setInterval(cvReadImage, CAMERA_INTERVAL);
   } catch (error) {
     console.error('Camera not available, got error:', error);
   }
