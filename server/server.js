@@ -64,55 +64,42 @@ io.on('connection', function (socket) {
   var file = fs.readFileSync('320x240.jpeg');
   fs.writeFileSync('test-data', file.toString('base64'));
   requester.send(file.toString('base64'));
-  console.log(file.toString('base64'));
-  // fs.writeFileSync('test.txt', file.toString('ascii'));
 
-  // console.log('######    toString output    ######');
-  // for (var i = 0; i < 10; i++) {
-  //   console.log(file.toString('ascii')[i]);
-  // }
-  // console.log('######    slice output    ######');
-  // for (var i = 0; i < 10; i++) {
-  //   console.log(file.slice(i, i+1));
-  // }
+  var cvCamera;
+  var imageBuffer;
+  var imageString;
+  var cvReadImage = function () {
+    if (cvCamera) {
+      cvCamera.read(function (error, image) {
+        if (error) {
+          console.error('Error reading from camera:', error);
+        }
 
-  // var cvCamera;
-  // var imageBuffer;
-  // var imageString;
-  // var cvReadImage = function () {
-  //   if (cvCamera) {
-  //     cvCamera.read(function (error, image) {
-  //       if (error) {
-  //         console.error('Error reading from camera:', error);
-  //       }
+        requester.send(image.toBuffer().toString('base64'));
+        // cv.readImage(imageBuffer, function (error, mat) {
+        //   // console.log(image.toBuffer());
+        //   // console.log('#################');
+        //   // console.log('#################');
+        //   // console.log('#################');
+        //   // console.log('#################');
+        //   // console.log(mat.toBuffer());
 
-  //       imageBuffer = image.toBuffer();
-  //       console.log(imageBuffer);
-  //       // cv.readImage(imageBuffer, function (error, mat) {
-  //       //   // console.log(image.toBuffer());
-  //       //   // console.log('#################');
-  //       //   // console.log('#################');
-  //       //   // console.log('#################');
-  //       //   // console.log('#################');
-  //       //   // console.log(mat.toBuffer());
+        //   // requester.send(mat);
+        // });
+      });
+    }
+  };
 
-  //       //   // requester.send(mat);
-  //       //   requester.send("hello");
-  //       // });
-  //     });
-  //   }
-  // };
+  try {
+    cvCamera = new cv.VideoCapture(0);
+    cvCamera.setWidth(CAMERA_WIDTH);
+    cvCamera.setHeight(CAMERA_HEIGHT);
 
-  // try {
-  //   cvCamera = new cv.VideoCapture(0);
-  //   cvCamera.setWidth(CAMERA_WIDTH);
-  //   cvCamera.setHeight(CAMERA_HEIGHT);
-
-  //   // cvReadImage();
-  //   setInterval(cvReadImage, CAMERA_INTERVAL);
-  // } catch (error) {
-  //   console.error('Camera not available, got error:', error);
-  // }
+    cvReadImage();
+    // setInterval(cvReadImage, CAMERA_INTERVAL);
+  } catch (error) {
+    console.error('Camera not available, got error:', error);
+  }
 });
 
 server.listen(PORT, function () {
