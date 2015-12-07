@@ -24,6 +24,8 @@ var CAMERA_HEIGHT = 240;
 var RECT_COLOR = [255, 0, 0];
 var RECT_WIDTH = 2;
 
+var fs = require('fs');
+
 app.use(express.static(STATIC_DIR));
 app.get('*', function (request, response) {
   response.sendFile('index.html', { root: STATIC_DIR }, function (error) {
@@ -41,14 +43,17 @@ io.on('connection', function (socket) {
   var child = childProcess.spawn('lib/a.out');
   var requester = zmq.socket('req');
 
-  child.stdout.on('data', function (data) {
-    console.log(data.toString());
-  });
+  child.stdout.pipe(process.stdout);
+  child.stderr.pipe(process.stderr);
+  // child.stdout.on('data', function (data) {
+  //   console.log('child output: ', data.toString());
+  // });
 
-  requester.on('message', function (reply) {
-    console.log("got a reply: ", reply.toString());
-    // socket.emit('frame', { buffer: reply });
-  });
+  // requester.on('message', function (reply) {
+  //   console.log("got a reply: ", reply.toString());
+  //   // socket.emit('frame', { buffer: reply });
+  // });
+  //
   requester.connect('tcp://127.0.0.1:5555');
   process.on('SIGINT', function () {
     requester.close();
@@ -56,45 +61,58 @@ io.on('connection', function (socket) {
     process.exit();
   });
 
-  var cvCamera;
-  var imageBuffer;
-  var imageString;
-  var cvReadImage = function () {
-    if (cvCamera) {
-      cvCamera.read(function (error, image) {
-        if (error) {
-          console.error('Error reading from camera:', error);
-        }
+  var file = fs.readFileSync('320x240.jpeg');
+  fs.writeFileSync('test-data', file.toString('base64'));
+  requester.send(file.toString('base64'));
+  console.log(file.toString('base64'));
+  // fs.writeFileSync('test.txt', file.toString('ascii'));
 
-        imageBuffer = image.toBuffer();
-        console.log(imageBuffer);
-        // cv.readImage(imageBuffer, function (error, mat) {
-        //   // console.log(image.toBuffer());
-        //   // console.log('#################');
-        //   // console.log('#################');
-        //   // console.log('#################');
-        //   // console.log('#################');
-        //   // console.log(mat.toBuffer());
+  // console.log('######    toString output    ######');
+  // for (var i = 0; i < 10; i++) {
+  //   console.log(file.toString('ascii')[i]);
+  // }
+  // console.log('######    slice output    ######');
+  // for (var i = 0; i < 10; i++) {
+  //   console.log(file.slice(i, i+1));
+  // }
 
-        //   // requester.send(mat);
-        //   requester.send("hello");
-        // });
-      });
-    }
-  };
+  // var cvCamera;
+  // var imageBuffer;
+  // var imageString;
+  // var cvReadImage = function () {
+  //   if (cvCamera) {
+  //     cvCamera.read(function (error, image) {
+  //       if (error) {
+  //         console.error('Error reading from camera:', error);
+  //       }
 
-  try {
-    cvCamera = new cv.VideoCapture(0);
-    cvCamera.setWidth(CAMERA_WIDTH);
-    cvCamera.setHeight(CAMERA_HEIGHT);
+  //       imageBuffer = image.toBuffer();
+  //       console.log(imageBuffer);
+  //       // cv.readImage(imageBuffer, function (error, mat) {
+  //       //   // console.log(image.toBuffer());
+  //       //   // console.log('#################');
+  //       //   // console.log('#################');
+  //       //   // console.log('#################');
+  //       //   // console.log('#################');
+  //       //   // console.log(mat.toBuffer());
 
-    // cvReadImage();
-    setInterval(cvReadImage, CAMERA_INTERVAL);
-  } catch (error) {
-    console.error('Camera not available, got error:', error);
-  }
+  //       //   // requester.send(mat);
+  //       //   requester.send("hello");
+  //       // });
+  //     });
+  //   }
+  // };
 
-  // socket.on('frame', cvReadImage);
+  // try {
+  //   cvCamera = new cv.VideoCapture(0);
+  //   cvCamera.setWidth(CAMERA_WIDTH);
+  //   cvCamera.setHeight(CAMERA_HEIGHT);
+
+  //   // cvReadImage();
+  //   setInterval(cvReadImage, CAMERA_INTERVAL);
+  // } catch (error) {
+  //   console.error('Camera not available, got error:', error);
+  // }
 });
 
 server.listen(PORT, function () {

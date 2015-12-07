@@ -12,7 +12,7 @@ const char* keys =
 int main(int argc, const char** argv)
 {
   cv::CommandLineParser parser(argc, argv, keys);
-  std::Mat src = parser.get<std::string>("input");
+  cv::Mat src = parser.get<std::string>("input");
   std::string cascade_file = "haarcascade_frontalface_alt.xml";
 
   cv::CascadeClassifier cascade;
