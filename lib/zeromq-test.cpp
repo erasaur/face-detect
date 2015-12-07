@@ -110,10 +110,18 @@ std::string base64_decode (std::string const& encoded_string) {
 }
 
 int main (int argc, char** argv) {
+  if (argc < 2) {
+    fprintf(stderr, "usage: %s <port>\n", argv[0]);
+    exit(1);
+  }
+
   zmq::context_t context(1);
   zmq::socket_t responder(context, ZMQ_REP);
-  responder.bind("tcp://127.0.0.1:5555");
-  std::cout << "zeromq connected" << std::endl;
+
+  std::string loc = "tcp://127.0.0.1:";
+  std::string port = argv[1];
+  responder.bind(loc + port);
+  std::cout << "zeromq connected to port " << port << std::endl;
 
   while (true) {
     zmq::message_t message;

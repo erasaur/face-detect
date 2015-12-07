@@ -1,3 +1,6 @@
 #!/bin/bash
 
-sudo lsof -iTCP:5555 -sTCP:LISTEN
+for i in {5555..5557}
+do
+  sudo lsof -iTCP:$i -sTCP:LISTEN
+done
