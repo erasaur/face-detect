@@ -66,7 +66,7 @@ io.on('connection', function (socket) {
     return;
   }
 
-  var child = childProcess.spawn('lib/CLM-Framework/bin/FaceDetect', [nextPort]);
+  var child = childProcess.spawn('bin/FaceDetect', [nextPort]);
   var requester = zmq.socket('req');
   var ready = false;
 
