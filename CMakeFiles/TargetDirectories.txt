@@ -1,4 +1,0 @@
-/Users/Mark/Documents/node/face-detect/lib/local/FaceAnalyser/CMakeFiles/FaceAnalyser.dir
-/Users/Mark/Documents/node/face-detect/exe/FaceDetect/CMakeFiles/FaceDetect.dir
-/Users/Mark/Documents/node/face-detect/lib/local/CLM/CMakeFiles/CLM.dir
-/Users/Mark/Documents/node/face-detect/lib/3rdParty/dlib/CMakeFiles/dlib.dir
