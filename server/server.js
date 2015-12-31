@@ -66,26 +66,15 @@ io.on('connection', function (socket) {
     return;
   }
 
-  var child = childProcess.spawn('lib/a.out', [nextPort]);
+  var child = childProcess.spawn('lib/CLM-Framework/bin/FaceDetect', [nextPort]);
   var requester = zmq.socket('req');
+  var ready = false;
 
   console.log('using port: ', nextPort);
   TCP_PORTS[nextPort] = requester;
 
   child.stdout.pipe(process.stdout);
   child.stderr.pipe(process.stderr);
-
-  requester.on('message', function (reply) {
-    socket.emit('frame', { buffer: reply.toString('base64') });
-  });
-
-  requester.connect('tcp://127.0.0.1:' + nextPort);
-
-  socket.on('disconnect', function () {
-    TCP_PORTS[nextPort] = 0;
-    requester.close();
-    child.kill('SIGINT');
-  });
 
   var cvCamera;
   var imageBuffer;
@@ -96,19 +85,31 @@ io.on('connection', function (socket) {
         if (error) {
           console.error('Error reading from camera:', error);
         }
-
         requester.send(image.toBuffer().toString('base64'));
       });
     }
   };
+
+  requester.on('message', function (reply) {
+    socket.emit('frame', { buffer: reply.toString() });
+    cvReadImage();
+  });
+
+  requester.connect('tcp://127.0.0.1:' + nextPort);
+
+  socket.on('disconnect', function () {
+    TCP_PORTS[nextPort] = 0;
+    requester.close();
+    child.kill('SIGINT');
+  });
+
 
   try {
     cvCamera = new cv.VideoCapture(0);
     cvCamera.setWidth(CAMERA_WIDTH);
     cvCamera.setHeight(CAMERA_HEIGHT);
 
-    // cvReadImage();
-    setInterval(cvReadImage, CAMERA_INTERVAL);
+    cvReadImage();
   } catch (error) {
     console.error('Camera not available, got error:', error);
   }
