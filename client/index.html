@@ -2,12 +2,51 @@
 <html>
   <head>
     <title>Face Detection Test</title>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
   </head>
 
   <body>
-    <canvas id="webcam-feed" width="640" height="480"></canvas>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">CLM Demo</a>
+        </div>
+      </div>
+    </nav>
+
+    <div id="loading" class="alert alert-info alert-dismissible info-box" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="main container">
+      <div class="row">
+        <div class="col-xs-8 col-xs-offset-2">
+          <div class="settings-container">
+            <div class="dropdown">
+              <button class="btn btn-default btn-sm dropdown-toggle" type="button"
+                id="dropdown-resolution" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                Resolution
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdown-resolution">
+                <li class="res-option" data-scale="1"><a href="#">320x240 (default)</a></li>
+                <li class="res-option" data-scale="1.5"><a href="#">480x360</a></li>
+                <li class="res-option" data-scale="2"><a href="#">640x480</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <canvas id="webcam-feed" class="centered" width="640" height="480"></canvas>
+        </div>
+      </div>
+    </div>
 
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="/client.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/client.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
   </body>
 </html>

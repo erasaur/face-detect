@@ -1,1 +1,85 @@
 *.out
+ipch/
+*.vsp
+*.suo
+*.opensdf
+*.sdf
+*.ipch
+*.psess
+*.pdb
+*.a
+.idea/
+matlab runners/out_wild_clnf/
+matlab runners/out_wild_clnf_wild/
+matlab runners/out_wild_svr/
+matlab runners/out_wild_svr_wild/
+matlab_runners/out_wild_svr/
+matlab_runners/out_wild_clnf/
+matlab_runners/out_wild_clnf_wild/
+matlab_runners/out_wild_svr_wild/
+exe/MultiTrackCLM/Debug/
+exe/MultiTrackCLM/Release/
+lib/local/CLM/Debug/
+lib/local/CLM/Release/
+exe/Recording/Debug/
+exe/SimpleCLM/Debug/
+exe/SimpleCLMImg/Debug/
+exe/Recording/Release/
+exe/SimpleCLM/Release/
+exe/SimpleCLMImg/Release/
+/Debug/
+/Release/
+exe/SimplePuppets/Debug/
+exe/SimplePuppets/Release/
+exe/ConsolePuppets/Release/
+lib/local/Puppets/Debug/
+lib/local/Puppets/Release/
+lib/3rdParty/dlib/Release/
+lib/3rdParty/dlib/Debug/
+exe/FeatureExtraction/Debug/
+exe/FeatureExtraction/Release/
+matlab_runners/demo_vid/
+matlab_runners/demo_img/
+lib/local/FaceAnalyser/Release/
+lib/local/FaceAnalyser/Debug/
+matlab_runners/output_features/
+matlab_runners/output_features_vid/1815_01_008_tony_blair/
+matlab_runners/output_features_seq/
+matlab_runners/output_features_vid/
+CMakeFiles/
+/bin/
+Makefile
+cmake_install.cmake
+CMakeCache.txt
+videos/images_track/
+matlab_runners/yt_features/
+matlab_runners/yt_features_clm/
+lib/local/CLM_Interop/Release/
+exe/HeadPose-live/obj/Release/
+lib/local/CLM_Interop/Debug/
+exe/HeadPose-live/obj/Debug/
+exe/HeadPose-file/obj/Release/
+lib/local/CamCom/Debug/
+lib/local/CamCom/Release/
+lib/local/OpenCVWrappers/Debug/
+exe/HeadPose-file/obj/Debug/
+exe/CLM-framework-GUI/obj/
+lib/local/OpenCVWrappers/Release/
+matlab_runners/AU_preds/
+matlab_runners/Feature Point Experiments/out_wild_clnf_wild/
+matlab_runners/Feature Point Experiments/out_wild_clnf/
+matlab_runners/Feature Point Experiments/out_wild_svr/
+matlab_runners/Feature Point Experiments/out_wild_svr_wild/
+matlab_runners/Demos/output_features_vid/
+matlab_runners/Demos/demo_vid/
+matlab_runners/Demos/demo_img/
+matlab_runners/Action Unit Experiments/AU_preds/
+matlab_runners/Demos/output_features_seq/
+matlab_runners/Feature Point Experiments/yt_features/
+matlab_runners/Feature Point Experiments/yt_features_clm/
+exe/SimpleCLM/output_vids/
+exe/SimpleCLM/output_features/
+exe/FeatureExtraction/output_features/
+exe/Recording/recording/
+videos/aligned/
+matlab_runners/Gaze Experiments/gaze_estimates_MPII/

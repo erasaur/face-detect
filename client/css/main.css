@@ -1,0 +1,28 @@
+body {
+  background-color: #f5f6f6;
+}
+
+.navbar {
+  margin-bottom: 0;
+}
+
+.main.container {
+  margin-top: 50px;
+  padding-top: 20px;
+}
+
+.centered {
+  display: block;
+  margin: 0 auto;
+}
+
+.info-box {
+  position: absolute;
+  right: 20px;
+  top: 70px;
+  text-align: center;
+}
+
+.settings-container {
+  float: right;
+}

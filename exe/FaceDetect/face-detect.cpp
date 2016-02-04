@@ -10,9 +10,6 @@
 
 #include "CLM_core.h"
 
-#define IM_WIDTH 320
-#define IM_HEIGHT 240
-
 // from CLM -------------------------------------------
 
 #define INFO_STREAM(stream) \
@@ -236,7 +233,6 @@ int main (int argc, char** argv) {
 
   // main loop (reading from node.js) -----------------
 
-  INFO_STREAM( "Starting tracking");
   while (true) {
     zmq::message_t message;
     responder.recv(&message);
@@ -252,7 +248,7 @@ int main (int argc, char** argv) {
     Mat captured_image = imdecode(rawData, -1);
 
     // process images with CLM ------------------------
-    
+
     // If optical centers are not defined just use center of image
     cx = captured_image.cols / 2.0f;
     cy = captured_image.rows / 2.0f;
