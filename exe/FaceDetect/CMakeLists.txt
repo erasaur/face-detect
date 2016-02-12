@@ -12,6 +12,10 @@ target_link_libraries(FaceDetect dlib)
 find_library(ZMQ_LIB zmq HINTS "/usr/local/lib")
 target_link_libraries(FaceDetect ${ZMQ_LIB})
 
+find_package(Protobuf REQUIRED)
+# include_directories(${PROTOBUF_INCLUDE_DIRS})
+target_link_libraries(FaceDetect ${PROTOBUF_LIBRARIES})
+
 if(WIN32)
   target_link_libraries(FaceDetect ${OpenCVLibraries})
 endif(WIN32)

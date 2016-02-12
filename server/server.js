@@ -105,6 +105,7 @@ io.on('connection', function (socket) {
     // discard data if reply took too long
     if (lastRequest && Date.now() - lastRequest < CAMERA_INTERVAL*2) {
       imageString = reply.toString();
+      console.log(imageString);
     }
     lastRequest = Date.now();
     processImage();

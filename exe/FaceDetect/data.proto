@@ -1,0 +1,20 @@
+message ColorData {
+  optional int32 r = 1;
+  optional int32 g = 2;
+  optional int32 b = 3;
+}
+message PointData {
+  optional int32 x = 1;
+  optional int32 y = 2;
+  optional int32 t1 = 3; // thickness 1
+  optional int32 t2 = 4; // thickness 2
+}
+message LineData {
+  repeated PointData point = 1;
+  optional ColorData color = 2;
+}
+message FeatureData {
+  repeated LineData line = 1;
+  repeated PointData point = 2;
+  optional int32 fps = 3;
+}
