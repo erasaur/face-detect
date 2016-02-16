@@ -329,67 +329,7 @@ void process_tracking (FeatureData &feature_data, Mat& captured_image, Mat_<floa
 
   // Write out the framerate on the image before displaying it
   feature_data.set_fps((int)fps_tracker);
-  /* char fpsC[255]; */
-  /* std::sprintf(fpsC, "%d", (int)fps_tracker); */
-  /* string fpsSt("FPS:"); */
-  /* fpsSt += fpsC; */
-  /* cv::putText(captured_image, fpsSt, cv::Point(10, 20), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0)); */
 }
-
-// Visualising the results
-void visualise_tracking (Mat& captured_image, Mat_<float>& depth_image, const CLMTracker::CLM& clm_model, const CLMTracker::CLMParameters& clm_parameters, int frame_count, double fx, double fy, double cx, double cy) {
-  // Drawing the facial landmarks on the face and the bounding box around it if tracking is successful and initialised
-  double detection_certainty = clm_model.detection_certainty;
-  bool detection_success = clm_model.detection_success;
-
-  double visualisation_boundary = 0.2;
-
-  // Only draw if the reliability is reasonable, the value is slightly ad-hoc
-  if (detection_certainty < visualisation_boundary) {
-    CLMTracker::Draw(captured_image, clm_model);
-
-    double vis_certainty = detection_certainty;
-    if (vis_certainty > 1)
-      vis_certainty = 1;
-    if (vis_certainty < -1)
-      vis_certainty = -1;
-
-    vis_certainty = (vis_certainty + 1) / (visualisation_boundary + 1);
-
-    // A rough heuristic for box around the face width
-    int thickness = (int)std::ceil(2.0* ((double)captured_image.cols) / 640.0);
-
-    Vec6d pose_estimate_to_draw = CLMTracker::GetCorrectedPoseCameraPlane(clm_model, fx, fy, cx, cy);
-
-    // Draw it in reddish if uncertain, blueish if certain
-    CLMTracker::DrawBox(captured_image, pose_estimate_to_draw, Scalar((1 - vis_certainty)*255.0, 0, vis_certainty * 255), thickness, fx, fy, cx, cy);
-  }
-
-  // Work out the framerate
-  if (frame_count % 10 == 0) {
-    double t1 = cv::getTickCount();
-    fps_tracker = 10.0 / (double(t1 - t0) / cv::getTickFrequency());
-    t0 = t1;
-  }
-
-  // Write out the framerate on the image before displaying it
-  char fpsC[255];
-  std::sprintf(fpsC, "%d", (int)fps_tracker);
-  string fpsSt("FPS:");
-  fpsSt += fpsC;
-  cv::putText(captured_image, fpsSt, cv::Point(10, 20), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
-
-  /* if (!clm_parameters.quiet_mode) { */
-  /*   namedWindow("tracking_result", 1); */
-  /*   imshow("tracking_result", captured_image); */
-
-  /*   if (!depth_image.empty()) { */
-  /*     // Division needed for visualisation purposes */
-  /*     imshow("depth", depth_image / 2000.0); */
-  /*   } */
-  /* } */
-}
-
 
 // utilies for encoding/decoding base64 ---------------
 
@@ -572,7 +512,6 @@ int main (int argc, char** argv) {
       double detection_certainty = clm_model.detection_certainty;
 
       process_tracking(feature_data, captured_image, depth_image, clm_model, clm_parameters, frame_count, fx, fy, cx, cy);
-      /* visualise_tracking(captured_image, depth_image, clm_model, clm_parameters, frame_count, fx, fy, cx, cy); */
 
       frame_count++;
     }
@@ -585,14 +524,6 @@ int main (int argc, char** argv) {
 
     feature_data.clear_line();
     feature_data.clear_point();
-    /* feature_data.Clear(); */
-    
-    /* vector<uchar> buff; */
-    /* vector<int> params; */
-    /* imencode(".jpg", captured_image, buff, params); */
-    /* const unsigned char *captured_data = &buff[0]; */
-    /* string encoded = base64_encode(captured_data, buff.size()); */
-
-    /* zmq_send((void *)responder, encoded.c_str(), encoded.length(), 0); */
+    feature_data.Clear();
   }
 }

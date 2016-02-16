@@ -1,5 +1,8 @@
 add_executable(FaceDetect face-detect.cpp)
 
+add_library(data.pb.a ./data.pb.cc)
+target_link_libraries(FaceDetect data.pb.a)
+
 # Local libraries
 include_directories(${CLM_SOURCE_DIR}/include)
 

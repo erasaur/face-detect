@@ -5,6 +5,7 @@ var socket = require('socket.io');
 var http = require('http');
 var childProcess = require('child_process');
 var zmq = require('zmq');
+var protobuf = require('protobufjs');
 
 var app = express();
 var server = http.Server(app);
@@ -27,7 +28,10 @@ var TCP_PORTS = {
   '5558': 0
 };
 
-var fs = require('fs');
+// load protobuf and proto file
+var protoBuilder = protobuf.loadProtoFile('./exe/FaceDetect/data.proto');
+var protoRoot = protoBuilder.build();
+var FeatureData = protoRoot.FeatureData;
 
 var getAvailablePort = function () {
   var res;
@@ -77,7 +81,7 @@ io.on('connection', function (socket) {
   child.stderr.pipe(process.stderr);
 
   var cvCamera;
-  var imageString;
+  var imageData;
   var lastRequest;
   var cvReadImage = function (cb) {
     cvCamera.read(function (error, image) {
@@ -86,26 +90,36 @@ io.on('connection', function (socket) {
     });
   };
   var writeImage = function () {
-    if (imageString) {
-      socket.emit('frame', { buffer: imageString });
-      imageString = null;
-    } else {
-      cvReadImage(function (buffer) {
-        socket.emit('frame', { buffer: buffer });
-      });
-    }
+    cvReadImage(function (buffer) {
+      socket.emit('frame', { buffer: buffer });
+    });
   };
   var processImage = function () {
     cvReadImage(function (image) {
       requester.send(image);
     });
   };
+  var updateClient = function (config) {
+    socket.emit('config', config);
+  };
+
+  updateClient({ width: CAMERA_WIDTH, height: CAMERA_HEIGHT });
 
   requester.on('message', function (reply) {
     // discard data if reply took too long
     if (lastRequest && Date.now() - lastRequest < CAMERA_INTERVAL*2) {
-      imageString = reply.toString();
-      console.log(imageString);
+      // although there should not be any required fields,
+      // catch any potential decoding issues
+      try {
+        imageData = FeatureData.decode(reply);
+      } catch (e) {
+        if (e.decoded) { // decoded message with missing fields
+          imageData = e.decoded;
+        } else { // error
+          console.log('Unable to decode feature data reply!');
+        }
+      }
+      socket.emit('frameData', imageData);
     }
     lastRequest = Date.now();
     processImage();
@@ -120,6 +134,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on('change_resolution', function (scale) {
+    updateClient({ width: CAMERA_WIDTH * scale, height: CAMERA_HEIGHT * scale });
     cvCamera.setWidth(CAMERA_WIDTH * scale);
     cvCamera.setHeight(CAMERA_HEIGHT * scale);
   });
