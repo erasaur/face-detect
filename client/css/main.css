@@ -12,6 +12,7 @@ body {
 }
 
 .centered {
+  position: absolute;
   display: block;
   margin: 0 auto;
 }

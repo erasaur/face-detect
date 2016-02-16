@@ -9,6 +9,7 @@ ipch/
 *.pdb
 *.a
 .idea/
+node_modules/
 matlab runners/out_wild_clnf/
 matlab runners/out_wild_clnf_wild/
 matlab runners/out_wild_svr/
