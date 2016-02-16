@@ -23,7 +23,7 @@ $('.res-option').click(function (event) {
 });
 
 socket.on('config', function (config) {
-  dataContext.scale(canvasWidth / config.width, canvasHeight / config.height);
+  dataContext.setTransform(canvasWidth / config.width, 0, 0, canvasHeight / config.height, 0, 0);
 });
 
 socket.on('frame', function (data) {
