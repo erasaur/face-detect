@@ -449,7 +449,7 @@ int main (int argc, char** argv) {
 
   string loc = "tcp://127.0.0.1:";
   string port = argv[1];
-  responder.bind(loc + port);
+  responder.bind((loc + port).c_str());
   cout << "zeromq connected to port " << port << endl;
 
   // CLM ----------------------------------------------
