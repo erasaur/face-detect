@@ -3,17 +3,17 @@ Face detection using the [Cambridge face tracker](https://github.com/TadasBaltru
 ## Building the project
 
 1. Install [zeromq](https://github.com/zeromq/libzmq) (used for communicating
-   between Node.js and the CLM framework).
-   On OSX (assuming homebrew installed): `brew update && brew install zeromq`
-   On Linux: `sudo apt-get install libzmq3-dev`
+   between Node.js and the CLM framework).  
+   On OSX (assuming homebrew installed): `brew update && brew install zeromq`  
+   On Linux: `sudo apt-get install libzmq3-dev`  
 
-2. Install OpenCV 2.X (can be omitted once `node-opencv` upgrades to OpenCV 3+).
-   On OSX: `brew install opencv`
-   On Linux: follow the instructions [here](http://docs.opencv.org/2.4/doc/tutorials/introduction/linux_install/linux_install.html)
+2. Install OpenCV 2.X (can be omitted once `node-opencv` upgrades to OpenCV 3+).  
+   On OSX: `brew install opencv`  
+   On Linux: follow the instructions [here](http://docs.opencv.org/2.4/doc/tutorials/introduction/linux_install/linux_install.html).
 
-3. Make sure you have `npm` and `node` properly installed. If not, follow the
-   instructions [here](https://docs.npmjs.com/getting-started/installing-node).
-   Note: Although not required, it's recommended to use [nvm](https://github.com/creationix/nvm) to manage different versions of node on the same machine.
+3. Make sure you have [node](https://github.com/nodejs/node) (v0.10.29 recommended) and [npm](https://github.com/npm/npm) (usually comes with node) properly installed. If not, follow the
+   instructions [here](https://docs.npmjs.com/getting-started/installing-node).  
+   Note: Although not required, it's recommended to use [nvm](https://github.com/creationix/nvm) to manage different versions of node on the same machine. [Here's](http://stackoverflow.com/questions/8108609/install-multiple-version-of-node-js-using-nvm-ubuntu) a good tutorial for setting up on linux.
 
 4. Clone the repository (or download zip): `git clone https://github.com/erasaur/face-detect.git`
 
@@ -39,8 +39,8 @@ Face detection using the [Cambridge face tracker](https://github.com/TadasBaltru
 7. For OSX, download [zeromq C++ bindings](https://github.com/zeromq/cppzmq/blob/master/zmq.hpp) and include it in the header search path. 
    You can do that by moving the file into `/usr/local/include`.
 
-8. Install protobuf (version 2.X).
-   On OXS: `brew install protobuf`
+8. Install [protobuf](https://github.com/google/protobuf) (version 2.X).  
+   On OXS: `brew install protobuf`  
    On Linux: follow the instructions
    [here](https://github.com/google/protobuf/tree/master/src).
 
@@ -55,8 +55,8 @@ Face detection using the [Cambridge face tracker](https://github.com/TadasBaltru
 ## Running the project
 
 ```
-cd face-detect
+cd <path to face detect>
 ./run.sh
 ```
 
-Once the server starts listening for connections, visit `localhost:3000` in your browser to experience realtime facial detection via your webcam.
+Once the server starts listening for connections, visit `https://localhost:3000` to begin face detection.
