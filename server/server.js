@@ -88,17 +88,9 @@ io.on('connection', function (socket) {
     socket.emit('requestFrame');
     processFrame();
   };
-  var asdf = 0;
   var processFrame = function () {
-    console.log("12312321");
-    if (!lastSent || lastReceived >= lastSent) {
-      if (asdf++ >= 30) {
-        var fs = require('fs');
-        asdf = 0;
-        console.log("------------------------------------------------------------");
-        console.log(currFrame.substr(0,30));
-      }
-      requester.send(currFrame);
+    if (currFrame && (!lastSent || lastReceived >= lastSent)) {
+      requester.send(currFrame.replace('data:image/jpeg;base64,',''));
       lastSent = Date.now();
     }
   };

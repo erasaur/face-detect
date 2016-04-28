@@ -40,6 +40,8 @@ getUserMedia({ video: true, audio: false }, function (err, stream) {
 });
 
 socket.on('config', function (config) {
+  hiddenCanvas.width = config.width;
+  hiddenCanvas.height = config.height;
   dataContext.setTransform(canvasWidth / config.width,    // scale horiz
                            0,                             // skew horiz
                            0,                             // skew vert
@@ -54,7 +56,7 @@ socket.on('requestFrame', function () {
     loadingElem.classList.add('hidden');
   }
   // grab current video frame
-  hiddenContext.drawImage(video, 0, 0);
+  hiddenContext.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
   socket.emit('frame', hiddenCanvas.toDataURL("image/jpeg")); // base64
 });
 

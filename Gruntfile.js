@@ -3,7 +3,7 @@ module.exports = function (grunt) {
     pkg: grunt.file.readJSON('package.json'),
     watch: {
       files: [
-        'client/js/editor.js'
+        'client/js/client.js'
       ],
       tasks: ['browserify']
     },
