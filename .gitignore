@@ -10,6 +10,7 @@ ipch/
 *.a
 .idea/
 node_modules/
+build/
 matlab runners/out_wild_clnf/
 matlab runners/out_wild_clnf_wild/
 matlab runners/out_wild_svr/
