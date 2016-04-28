@@ -84,10 +84,6 @@ io.on('connection', function (socket) {
   var imageData;
   var lastSent;
   var lastReceived;
-  var requestFrame = function () {
-    socket.emit('requestFrame');
-    processFrame();
-  };
   var processFrame = function () {
     if (currFrame && (!lastSent || lastReceived >= lastSent)) {
       requester.send(currFrame.replace('data:image/jpeg;base64,',''));
@@ -136,7 +132,8 @@ io.on('connection', function (socket) {
   });
 
   try {
-    setInterval(requestFrame, CAMERA_INTERVAL);
+    socket.emit('loaded');
+    setInterval(processFrame, CAMERA_INTERVAL);
   } catch (error) {
     console.error('Camera not available, got error:', error);
     socket.disconnect();

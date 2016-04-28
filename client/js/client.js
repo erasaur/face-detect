@@ -15,8 +15,12 @@ var hiddenContext = hiddenCanvas.getContext('2d');
 var dataCanvas = document.getElementById('data-feed');
 var dataContext = dataCanvas.getContext('2d');
 var loading = true;
+var webcamLoading = true;
 var canvasWidth = dataCanvas.width;
 var canvasHeight = dataCanvas.height;
+var webcamFPS = 60;
+var webcamInterval = 1000/webcamFPS;
+var webcamId;
 
 hiddenCanvas.width = canvasWidth;
 hiddenCanvas.height = canvasHeight;
@@ -28,13 +32,23 @@ $('.res-option').click(function (event) {
   socket.emit('change_resolution', parseFloat(option));
 });
 
+webcamId = setInterval(function () {
+  if (webcamLoading) return;
+
+  // grab current video frame
+  hiddenContext.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+  socket.emit('frame', hiddenCanvas.toDataURL("image/jpeg")); // base64
+}, webcamInterval);
+
 getUserMedia({ video: true, audio: false }, function (err, stream) {
   if (err) {
     // getUserMedia failure (potentially lack of browser support)
-    console.log('Unable to read from webcam');
+    showMessage('Unable to read from webcam');
+    clearInterval(webcamInterval);
   } else {
     window.URL.revokeObjectURL(video.src);
     video.src = window.URL.createObjectURL(stream);
+    webcamLoading = false;
   }
 });
 
@@ -49,14 +63,11 @@ socket.on('config', function (config) {
                            0);                            // move vert
 });
 
-socket.on('requestFrame', function () {
+socket.on('loaded', function () {
   if (loading) {
     loading = false;
     loadingElem.classList.add('hidden');
   }
-  // grab current video frame
-  hiddenContext.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
-  socket.emit('frame', hiddenCanvas.toDataURL("image/jpeg")); // base64
 });
 
 socket.on('frameData', function (data) {
