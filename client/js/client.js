@@ -1,3 +1,4 @@
+var getUserMedia = require('getusermedia');
 var socket = io();
 
 var loadingElem = document.getElementById('loading');
@@ -6,14 +7,23 @@ var showMessage = function (msg) {
   loadingElem.classList.remove('hidden');
 };
 
-var canvas = document.getElementById('webcam-feed');
-var context = canvas.getContext('2d');
+// var canvas = document.getElementById('webcam-feed');
+// var context = canvas.getContext('2d');
+var video = document.getElementById('webcam-feed');
+var hiddenCanvas = document.createElement('canvas');
+var hiddenContext = hiddenCanvas.getContext('2d');
 var dataCanvas = document.getElementById('data-feed');
 var dataContext = dataCanvas.getContext('2d');
-var image = new Image();
 var loading = true;
-var canvasWidth = canvas.width;
-var canvasHeight = canvas.height;
+var webcamLoading = true;
+var canvasWidth = dataCanvas.width;
+var canvasHeight = dataCanvas.height;
+var webcamFPS = 60;
+var webcamInterval = 1000/webcamFPS;
+var webcamId;
+
+hiddenCanvas.width = canvasWidth;
+hiddenCanvas.height = canvasHeight;
 
 showMessage('Loading...');
 
@@ -22,18 +32,42 @@ $('.res-option').click(function (event) {
   socket.emit('change_resolution', parseFloat(option));
 });
 
-socket.on('config', function (config) {
-  dataContext.setTransform(canvasWidth / config.width, 0, 0, canvasHeight / config.height, 0, 0);
+webcamId = setInterval(function () {
+  if (webcamLoading) return;
+
+  // grab current video frame
+  hiddenContext.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+  socket.emit('frame', hiddenCanvas.toDataURL("image/jpeg")); // base64
+}, webcamInterval);
+
+getUserMedia({ video: true, audio: false }, function (err, stream) {
+  if (err) {
+    // getUserMedia failure (potentially lack of browser support)
+    showMessage('Unable to read from webcam');
+    clearInterval(webcamInterval);
+  } else {
+    window.URL.revokeObjectURL(video.src);
+    video.src = window.URL.createObjectURL(stream);
+    webcamLoading = false;
+  }
 });
 
-socket.on('frame', function (data) {
+socket.on('config', function (config) {
+  hiddenCanvas.width = config.width;
+  hiddenCanvas.height = config.height;
+  dataContext.setTransform(canvasWidth / config.width,    // scale horiz
+                           0,                             // skew horiz
+                           0,                             // skew vert
+                           canvasHeight / config.height,  // scale vert
+                           0,                             // move horiz
+                           0);                            // move vert
+});
+
+socket.on('loaded', function () {
   if (loading) {
     loading = false;
     loadingElem.classList.add('hidden');
   }
-  image.src = 'data:image/png;base64,' + data.buffer;
-  // no need for image onload; immediately ready
-  context.drawImage(image, 0, 0, canvasWidth, canvasHeight);
 });
 
 socket.on('frameData', function (data) {

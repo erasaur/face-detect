@@ -80,24 +80,15 @@ io.on('connection', function (socket) {
   child.stdout.pipe(process.stdout);
   child.stderr.pipe(process.stderr);
 
-  var cvCamera;
+  var currFrame;
   var imageData;
-  var lastRequest;
-  var cvReadImage = function (cb) {
-    cvCamera.read(function (error, image) {
-      if (error) console.error('Error reading from camera:', error);
-      cb(image.toBuffer().toString('base64'));
-    });
-  };
-  var writeImage = function () {
-    cvReadImage(function (buffer) {
-      socket.emit('frame', { buffer: buffer });
-    });
-  };
-  var processImage = function () {
-    cvReadImage(function (image) {
-      requester.send(image);
-    });
+  var lastSent;
+  var lastReceived;
+  var processFrame = function () {
+    if (currFrame && (!lastSent || lastReceived >= lastSent)) {
+      requester.send(currFrame.replace('data:image/jpeg;base64,',''));
+      lastSent = Date.now();
+    }
   };
   var updateClient = function (config) {
     socket.emit('config', config);
@@ -107,7 +98,7 @@ io.on('connection', function (socket) {
 
   requester.on('message', function (reply) {
     // discard data if reply took too long
-    if (lastRequest && Date.now() - lastRequest < CAMERA_INTERVAL*2) {
+    if (lastReceived && Date.now() - lastReceived < CAMERA_INTERVAL*2) {
       // although there should not be any required fields,
       // catch any potential decoding issues
       try {
@@ -121,11 +112,14 @@ io.on('connection', function (socket) {
       }
       socket.emit('frameData', imageData);
     }
-    lastRequest = Date.now();
-    processImage();
+    lastReceived = Date.now();
   });
 
   requester.connect('tcp://127.0.0.1:' + nextPort);
+
+  socket.on('frame', function (data) {
+    currFrame = data; // base64
+  });
 
   socket.on('disconnect', function () {
     TCP_PORTS[nextPort] = 0;
@@ -135,17 +129,11 @@ io.on('connection', function (socket) {
 
   socket.on('change_resolution', function (scale) {
     updateClient({ width: CAMERA_WIDTH * scale, height: CAMERA_HEIGHT * scale });
-    cvCamera.setWidth(CAMERA_WIDTH * scale);
-    cvCamera.setHeight(CAMERA_HEIGHT * scale);
   });
 
   try {
-    cvCamera = new cv.VideoCapture(0);
-    cvCamera.setWidth(CAMERA_WIDTH);
-    cvCamera.setHeight(CAMERA_HEIGHT);
-
-    processImage(); // initial call
-    setInterval(writeImage, CAMERA_INTERVAL);
+    socket.emit('loaded');
+    setInterval(processFrame, CAMERA_INTERVAL);
   } catch (error) {
     console.error('Camera not available, got error:', error);
     socket.disconnect();

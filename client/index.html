@@ -39,7 +39,9 @@
             </div>
           </div>
 
-          <canvas id="webcam-feed" class="centered" width="640" height="480"></canvas>
+          <!-- <canvas id="webcam-feed" class="centered" width="640" height="480"></canvas> -->
+          <video autoplay id="webcam-feed" class="centered" width="640"
+            height="480"></video>
           <canvas id="data-feed" class="centered" width="640" height="480"></canvas>
         </div>
       </div>
@@ -47,7 +49,8 @@
 
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="/js/jquery.min.js"></script>
-    <script src="/js/client.js"></script>
+    <!-- <script src="/js/client.js"></script> -->
+    <script src="/js/client.bundle.js"></script>
     <script src="/js/bootstrap.min.js"></script>
   </body>
 </html>
